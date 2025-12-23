@@ -1,0 +1,1 @@
+https://wa.me/$%7BmyNumber%7D?text=$%7BencodeURIComponent(report)%7D%60
