@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DrShams Elite Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap');
+        body { font-family: 'Cairo', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .glass-effect { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.4); }
+        .premium-shadow { box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.05); }
+        .btn-gradient { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); transition: all 0.3s ease; }
+        .btn-gradient:active { transform: scale(0.95); }
+        .animate-in { animation: fadeInUp 0.5s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="pb-24">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 glass-effect p-6 border-b border-slate-100">
+        <div class="max-w-md mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">DrShams</h1>
+                <p class="text-[10px] font-bold text-slate-400 tracking-widest uppercase mt-1">Smarter Cloud Sync</p>
+            </div>
+            <div class="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shadow-inner">
+                <i class="fa-solid fa-sparkles"></i>
+            </div>
+        </div>
+        <div class="max-w-md mx-auto mt-6 relative">
+            <i class="fa-solid fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+            <input type="text" id="searchInput" onkeyup="renderPatients()" placeholder="ابحث عن مراجع..." 
+            class="w-full p-4 pr-12 rounded-2xl bg-slate-100/50 outline-none focus:bg-white focus:ring-4 focus:ring-indigo-50 transition-all text-sm font-bold">
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="patientList" class="max-w-md mx-auto px-6 mt-8 space-y-4">
+        <!-- القائمة تظهر هنا -->
+    </main>
+
+    <!-- Floating Button -->
+    <div class="fixed bottom-10 left-0 right-0 px-8 z-40 pointer-events-none">
+        <div class="max-w-md mx-auto flex justify-center pointer-events-auto">
+            <button onclick="openModal()" class="btn-gradient text-white w-20 h-20 rounded-[2.5rem] shadow-2xl shadow-indigo-200 flex items-center justify-center text-3xl">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md hidden z-[60] flex items-end p-6">
+        <div class="bg-white w-full max-w-md mx-auto rounded-[3rem] p-8 shadow-2xl animate-in">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-black text-slate-800">إضافة حالة جديدة</h2>
+                <button onclick="closeModal()" class="text-slate-300"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div class="space-y-4 max-h-[60vh] overflow-y-auto px-1">
+                <input type="text" id="name" placeholder="الاسم الكامل" class="w-full p-4 bg-slate-50 rounded-2xl outline-none font-bold focus:ring-2 focus:ring-indigo-400">
+                <input type="text" id="issue" placeholder="التشخيص / المشكلة" class="w-full p-4 bg-slate-50 rounded-2xl outline-none">
+                <div class="grid grid-cols-2 gap-3">
+                    <textarea id="treat" placeholder="العلاجات" class="w-full p-4 bg-slate-50 rounded-2xl outline-none h-24"></textarea>
+                    <textarea id="routine" placeholder="الروتين" class="w-full p-4 bg-slate-50 rounded-2xl outline-none h-24"></textarea>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-2xl">
+                    <div class="flex justify-between mb-2"><span class="text-xs font-black text-indigo-600">التحسن</span><span id="pVal" class="font-bold text-indigo-600">0%</span></div>
+                    <input type="range" id="improve" min="0" max="100" value="0" oninput="pVal.innerText=this.value+'%'" class="w-full accent-indigo-600">
+                </div>
+                <textarea id="result" placeholder="النتيجة النهائية" class="w-full p-4 bg-slate-50 rounded-2xl outline-none h-20"></textarea>
+            </div>
+            <button onclick="savePatient()" class="w-full mt-8 btn-gradient text-white py-5 rounded-3xl font-black text-lg shadow-xl shadow-indigo-100">حفظ في السحابة</button>
+        </div>
+    </div>
+
+    <!-- Details View -->
+    <div id="details" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto p-8 animate-in">
+        <div class="max-w-md mx-auto">
+            <div class="flex justify-between items-center mb-8">
+                <button onclick="closeDetails()" class="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-600"><i class="fa-solid fa-arrow-right"></i></button>
+                <button onclick="deleteCurrent()" class="text-rose-500 bg-rose-50 px-4 py-2 rounded-xl text-xs font-bold">حذف السجل</button>
+            </div>
+            <div id="detailsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // سنستخدم localStorage حالياً لضمان العمل الفوري، وإذا أردت ربطه بـ Firestore الحقيقي سأعطيك كود الربط.
+        let patients = JSON.parse(localStorage.getItem('drshams_data_v4')) || [];
+        let currentIdx = null;
+
+        function renderPatients() {
+            const list = document.getElementById('patientList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            list.innerHTML = '';
+            
+            const filtered = patients.filter(p => p.name.toLowerCase().includes(search));
+            
+            filtered.forEach((p, i) => {
+                list.innerHTML += `
+                    <div onclick="showDetails(${i})" class="bg-white p-5 rounded-[2rem] flex justify-between items-center cursor-pointer premium-shadow border border-slate-50 hover:scale-[1.02] transition-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-xl font-black shadow-lg shadow-indigo-100">${p.name[0]}</div>
+                            <div><h3 class="font-black text-slate-800">${p.name}</h3><p class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">${p.issue || 'متابعة عامة'}</p></div>
+                        </div>
+                        <div class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-xl font-black text-sm">${p.improve}%</div>
+                    </div>
+                `;
+            });
+            localStorage.setItem('drshams_data_v4', JSON.stringify(patients));
+        }
+
+        function showDetails(i) {
+            currentIdx = i;
+            const p = patients[i];
+            const content = document.getElementById('detailsContent');
+            content.innerHTML = `
+                <h2 class="text-4xl font-black text-slate-900 mb-2">${p.name}</h2>
+                <p class="text-slate-400 text-xs font-bold mb-8 uppercase tracking-widest italic">سجل المتابعة الرقمي - ${p.date}</p>
+                <div class="space-y-6">
+                    <div class="bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-2xl shadow-indigo-200">
+                        <div class="flex justify-between items-end mb-4"><div><p class="text-indigo-200 text-xs font-black mb-1">نسبة التحسن</p><span class="text-6xl font-black">${p.improve}%</span></div><i class="fa-solid fa-chart-line text-4xl opacity-30"></i></div>
+                        <div class="w-full bg-white/20 h-3 rounded-full overflow-hidden"><div class="bg-white h-full" style="width:${p.improve}%"></div></div>
+                    </div>
+                    <div class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100"><h4 class="text-indigo-600 font-black text-xs uppercase mb-2">التشخيص</h4><p class="font-bold text-slate-700">${p.issue}</p></div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm"><h4 class="text-slate-400 font-black text-[10px] uppercase mb-2">العلاجات</h4><p class="text-xs text-slate-600 whitespace-pre-line">${p.treat}</p></div>
+                        <div class="p-6 bg-white rounded-[2rem] border border-slate-100 shadow-sm"><h4 class="text-slate-400 font-black text-[10px] uppercase mb-2">الروتين</h4><p class="text-xs text-slate-600 whitespace-pre-line">${p.routine}</p></div>
+                    </div>
+                    <div class="p-6 bg-emerald-50 rounded-[2rem] border border-emerald-100"><h4 class="text-emerald-600 font-black text-xs uppercase mb-2">النتيجة النهائية</h4><p class="text-emerald-900 font-bold italic">"${p.result || 'قيد المتابعة...'}"</p></div>
+                </div>
+            `;
+            document.getElementById('details').classList.remove('hidden');
+        }
+
+        function savePatient() {
+            const name = document.getElementById('name').value;
+            if(!name) return;
+            patients.unshift({
+                name, issue: document.getElementById('issue').value,
+                treat: document.getElementById('treat').value,
+                routine: document.getElementById('routine').value,
+                improve: document.getElementById('improve').value,
+                result: document.getElementById('result').value,
+                date: new Date().toLocaleDateString('ar-EG')
+            });
+            renderPatients();
+            closeModal();
+            // مسح الحقول
+            ['name', 'issue', 'treat', 'routine', 'result'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('improve').value = 0; pVal.innerText = '0%';
+        }
+
+        function deleteCurrent() {
+            if(confirm("حذف؟")) { patients.splice(currentIdx, 1); renderPatients(); closeDetails(); }
+        }
+
+        function openModal() { document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function closeDetails() { document.getElementById('details').classList.add('hidden'); }
+
+        renderPatients();
+    </script>
+</body>
+</html>
+
